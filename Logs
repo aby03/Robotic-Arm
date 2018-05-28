@@ -1,0 +1,6 @@
+Installing face recognition from ***https://github.com/ageitgey/face_recognition***
+	-contains face detection, face recognition, python examples
+
+Face Recognition - 2 ways
+	-Direct matching of 128 points (Single Image Input)
+	-Training classifier on 128 points (Multiple Image Input)

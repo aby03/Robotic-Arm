@@ -1,0 +1,23 @@
+Stereo Camera
+	-Distance of mouth
+
+Image from webcam
+Face Detection
+Face Recognition
+Facial Landmarks
+
+Facial Landmarks
+	-Determine mouth open or not
+
+Head Nod and Shake Detection
+
+Voice Commands
+
+Input:
+	Setup Image Recognition and mouth open close detection 			P3
+	Test Image Recognition and mouth open close detection 			P1
+	Start Feeding													P2
+
+Output:
+	Start 
+	Target Location 
