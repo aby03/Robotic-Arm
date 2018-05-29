@@ -38,7 +38,9 @@ def init_vid(src):
         global video_capture
         video_capture = cv2.VideoCapture(0)
     elif source == "ip_cam":
-        url='http://10.184.61.234:8080/shot.jpg'
+        #url='http://10.184.61.234:8080/shot.jpg'
+        # url='http://10.194.60.99:8080/shot.jpg'
+        url='http://10.194.30.23:8080/shot.jpg'
 
 def get_vid_frame():
     global video_capture, source, url
@@ -120,7 +122,8 @@ while True:
 
             face_names.append(name)
 
-        face_landmarks_list = face_recognition.face_landmarks(image)
+        # Facial Features
+        face_landmarks_list = face_recognition.face_landmarks(rgb_small_frame)
         for face_landmarks in face_landmarks_list:
 
             # Print the location of each facial feature in this image
@@ -129,17 +132,34 @@ while True:
                 'bottom_lip'
             ]
 
-            for facial_feature in facial_features:
-                print("The {} in this face has the following points: {}".format(facial_feature, face_landmarks[facial_feature]))
-
-            # Let's trace out each facial feature in the image with a line!
-            pil_image = Image.fromarray(image)
-            d = ImageDraw.Draw(pil_image)
 
             for facial_feature in facial_features:
-                cv2.line(frame, face_landmarks[facial_feature], width=5)
+                pt_list = []
+                for pt in face_landmarks[facial_feature]:
+                    l_pt = [p*4 for p in list(pt)]
+                    # print("==========")
+                    # print(l_pt)
+                    pt_list.append(l_pt)
+                # print(face_list)
+                # print(face_list)
+                pts = np.array(pt_list, np.int32)
+                pts = pts.reshape((-1,1,2))
+                # print(pts)
+                if facial_feature == 'top_lip':
+                    for circle in pts:
+                        crc = tuple([tuple(c) for c in circle])[0]
+                        print(crc)
+                        cv2.circle(frame, crc, 4, (0,255,0))
+                    cv2.polylines(frame, [pts], False, (255,0,0), 2)
+                else:
+                    for circle in pts:
+                        crc = [tuple(c) for c in circle][0]
+                        print(crc)
+                        cv2.circle(frame, crc, 4, (0,255,0))
+                    cv2.polylines(frame, [pts], False, (0,0,255), 2)
+        # Facial Features End
 
-    process_this_frame = not process_this_frame
+    process_this_frame = True
 
 
     # Display the results

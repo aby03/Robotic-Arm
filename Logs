@@ -4,3 +4,21 @@ Installing face recognition from ***https://github.com/ageitgey/face_recognition
 Face Recognition - 2 ways
 	-Direct matching of 128 points (Single Image Input)
 	-Training classifier on 128 points (Multiple Image Input)
+
+Added youbot driver in /opt/ros/kinetic/share (this path used as it is already in ROS_PKG_PATH variable)
+	-clone repo using sudo git clone git://github.com/youbot/youbot_driver.git
+	-TO DO: left after installing driver
+	-Removed everything due to permission issues
+
+Adding youbot_driver and youbot_applications
+	-In dir /home/Projects/RoboticArm/youbot/ cloned both
+		--https://github.com/youbot/youbot_driver.git
+		--https://github.com/youbot/youbot_applications.git Renamed folder to applications
+	-In .barshrc, added
+		--export YOUBOTDIR=/home/aby03/Projects/RoboticArm/youbot/youbot_driver
+		--export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:/home/aby03/Projects/RoboticArm/youbot/youbot_driver:/home/aby03/Projects/RoboticArm/youbot/applications
+		--Commented any other 'export PYTHONPATH' or 'export PATH' than ros(creates problem when compling packages)
+
+
+
+sudo apt-get install libncurses5-dev libncursesw5-dev
