@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import glob
 import urllib.request
+import math
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
 #   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
@@ -39,11 +40,12 @@ def init_vid(src):
         video_capture = cv2.VideoCapture(0)
     elif source == "ip_cam":
         #url='http://10.184.61.234:8080/shot.jpg'
-        # url='http://10.194.60.99:8080/shot.jpg'
-        url='http://10.194.30.23:8080/shot.jpg'
+        url='http://10.194.60.99:8080/shot.jpg'
+        # url='http://10.194.30.23:8080/shot.jpg'
 
 def get_vid_frame():
     global video_capture, source, url
+    # print(source)
     if (source == None) or (source == "webcam"):
         ret, frame = video_capture.read()
     elif source == "ip_cam":
@@ -90,7 +92,7 @@ user_index = 0
 
 # Initialize/Load modules
 known_face_encodings, known_face_names = load_known_faces()
-init_vid("ip_cam") # Initiate Video Feed
+init_vid("webcam") # Initiate Video Feed
 
 while True:
     # Grab a single frame of video
@@ -124,18 +126,17 @@ while True:
 
         # Facial Features
         face_landmarks_list = face_recognition.face_landmarks(rgb_small_frame)
-        for face_landmarks in face_landmarks_list:
 
+        for face_landmarks in face_landmarks_list:
             # Print the location of each facial feature in this image
             facial_features = [
                 'top_lip',
                 'bottom_lip'
             ]
 
-
             for facial_feature in facial_features:
                 pt_list = []
-                for pt in face_landmarks[facial_feature]:
+                for pt_index, pt in enumerate(face_landmarks[facial_feature]):
                     l_pt = [p*4 for p in list(pt)]
                     # print("==========")
                     # print(l_pt)
@@ -144,19 +145,69 @@ while True:
                 # print(face_list)
                 pts = np.array(pt_list, np.int32)
                 pts = pts.reshape((-1,1,2))
+                print(pts)
+                if facial_feature == 'top_lip':
+                    top_lip_pts = pt_list
+                    print('Top')
+                elif facial_feature == 'bottom_lip':
+                    bot_lip_pts = pt_list
+                    print('Bottom')
                 # print(pts)
                 if facial_feature == 'top_lip':
-                    for circle in pts:
+                    for pt_num, circle in enumerate(pts):
                         crc = tuple([tuple(c) for c in circle])[0]
-                        print(crc)
-                        cv2.circle(frame, crc, 4, (0,255,0))
+                        # crc = crc2[8:10]
+                        # print(crc2)
+                        # print('Upper Lip')
+                        # print(type(crc))
+                        # print(crc.shape)
+                        # print(crc)
+                        # if pt_num > -1 and pt_num < 13:
+                        # 	cv2.circle(frame, crc, 4, (0,255,0))
+                        # 	font = cv2.FONT_HERSHEY_DUPLEX
+                        # 	cv2.putText(frame, str(pt_num), crc, font, 1.0, (255, 255, 255), 1)
+                        if pt_num > -1 and pt_num < 13:
+                            cv2.circle(frame, crc, 4, (255,255,0))
+                            font = cv2.FONT_HERSHEY_DUPLEX
+                            cv2.putText(frame, str(pt_num), crc, font, 0.5, (255, 255, 255), 1)
                     cv2.polylines(frame, [pts], False, (255,0,0), 2)
                 else:
-                    for circle in pts:
+                    for pt_num, circle in enumerate(pts):
                         crc = [tuple(c) for c in circle][0]
-                        print(crc)
-                        cv2.circle(frame, crc, 4, (0,255,0))
+                        # print(crc)
+                        # cv2.circle(frame, crc, 4, (0,255,0))
+                        if pt_num > -1 and pt_num < 13:
+                        	cv2.circle(frame, crc, 4, (0,255,0))
+                        	font = cv2.FONT_HERSHEY_DUPLEX
+                        	cv2.putText(frame, str(pt_num), crc, font, 0.5, (255, 255, 255), 1)
                     cv2.polylines(frame, [pts], False, (0,0,255), 2)
+            l_c = math.sqrt((top_lip_pts[0][0] - bot_lip_pts[6][0])**2 + (top_lip_pts[0][1] - bot_lip_pts[6][1])**2)
+            r_c = math.sqrt((top_lip_pts[6][0] - bot_lip_pts[0][0])**2 + (top_lip_pts[6][1] - bot_lip_pts[0][1])**2)
+            l_m = math.sqrt((top_lip_pts[10][0] - bot_lip_pts[8][0])**2 + (top_lip_pts[10][1] - bot_lip_pts[8][1])**2)
+            c_m = math.sqrt((top_lip_pts[9][0] - bot_lip_pts[9][0])**2 + (top_lip_pts[9][1] - bot_lip_pts[9][1])**2)
+            r_m = math.sqrt((top_lip_pts[8][0] - bot_lip_pts[10][0])**2 + (top_lip_pts[8][1] - bot_lip_pts[10][1])**2)
+            l_r = math.sqrt((top_lip_pts[0][0] - bot_lip_pts[0][0])**2 + (top_lip_pts[0][1] - bot_lip_pts[0][1])**2)
+            print("Left corner = {}".format(l_c))
+            print("Right corner = {}".format(r_c))
+            print("Left mid = {}".format(l_m))
+            print("Center mid = {}".format(c_m))
+            print("Right mid = {}".format(r_m))
+            print("L to R = {}".format(l_r))
+            ratio = (l_m + c_m + r_m ) / l_r
+            print('Mouth Ratio is {}'.format(ratio))
+
+            open_thresh = 0.2
+            close_thresh = 0.1
+            mouth_stat = ''     # Reset each time
+            if ratio > open_thresh:
+                mouth_stat = 'Open'
+                prev_mouth_stat = 'Open'
+            elif ratio < close_thresh:
+                mouth_stat = 'Close'
+                prev_mouth_stat = 'Close'
+            elif ratio < open_thresh and ratio > close_thresh:
+                mouth_stat = prev_mouth_stat
+            print("Mouth is {}".format(mouth_stat))
         # Facial Features End
 
     process_this_frame = True

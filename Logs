@@ -19,6 +19,14 @@ Adding youbot_driver and youbot_applications
 		--export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:/home/aby03/Projects/RoboticArm/youbot/youbot_driver:/home/aby03/Projects/RoboticArm/youbot/applications
 		--Commented any other 'export PYTHONPATH' or 'export PATH' than ros(creates problem when compling packages)
 
+Installing youbot and youbot application
+	-Follow compiling with cmake in youbot manual
+	-Additional library for keyboard_remote_control
+		--sudo apt-get install libncurses5-dev libncursesw5-dev
 
-
-sudo apt-get install libncurses5-dev libncursesw5-dev
+Installing PocketSphinx
+	-Dependency not listed - sudo apt-get install libasound2-dev
+	-Install it from here
+		-- https://github.com/cmusphinx/pocketsphinx-python
+	-Additional dependency for pyaudio
+		-- sudo apt-get install portaudio19-dev
